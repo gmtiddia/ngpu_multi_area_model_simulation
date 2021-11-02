@@ -11,6 +11,7 @@ launches 10 simulations (with spike recording) with different seeds for random n
 run_eval_time.sh
 ```
 launches 10 simulations without spike recording. In particular those scripts use the files ``run_simulation.templ`` and ``run_eval_time.templ`` to generate the homonymous Python scripts. The simulation parameters could be modified by editing the .templ files.
+
 Running
 ```
 create_symbolic_links.sh
