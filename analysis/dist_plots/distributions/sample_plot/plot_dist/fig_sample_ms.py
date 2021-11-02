@@ -27,7 +27,7 @@ axs[2,0].axis('off')
 axs[2,1].imshow(co_I)
 axs[2,1].axis('off')
 fig.set_size_inches(24, 15)
-plt.savefig("dist_sample_ms_2NEST.png", bbox_inches = 'tight', pad_inches = 0)
+plt.savefig("dist_sample_ms.png", bbox_inches = 'tight', pad_inches = 0)
 plt.show()
 
 
