@@ -59,8 +59,8 @@ def __load_spike_times(path, name, begin, end, npop):
     
     for i_pop in range(npop):
         fn = os.path.join(path, 'spike_times_' + str(i_pop) + '.dat')
-        #data_i_raw = np.loadtxt(fn, skiprows=1, dtype=dtype)
-        data_i_raw = np.loadtxt(fn, dtype=dtype)
+        data_i_raw = np.loadtxt(fn, skiprows=1, dtype=dtype)
+        #data_i_raw = np.loadtxt(fn, dtype=dtype)
         #data_i_raw = np.sort(data_i_raw, order='time_ms')
         # begin and end are included if they exist
         #low = np.searchsorted(data_i_raw['time_ms'], v=begin, side='left')
