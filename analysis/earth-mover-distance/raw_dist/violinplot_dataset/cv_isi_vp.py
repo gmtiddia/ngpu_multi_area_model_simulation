@@ -29,7 +29,7 @@ for i_run in range(nrun):
                 cvisilist += [i for i in cv_isi1]
                 cvisilist += [i for i in cv_isi2]
                 sim += ["NEST" for i in range(len(cv_isi1))]
-                sim += ["NeuronGPU" for i in range(len(cv_isi2))]
+                sim += ["NEST GPU" for i in range(len(cv_isi2))]
                 if(ipop<250):
                     popid += [ipop%8 for i in range(len(cv_isi1))]
                     popid += [ipop%8 for i in range(len(cv_isi2))]
