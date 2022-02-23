@@ -29,7 +29,7 @@ for i_run in range(nrun):
                 corrlist += [i for i in correl1]
                 corrlist += [i for i in correl2]
                 sim += ["NEST" for i in range(len(correl1))]
-                sim += ["NeuronGPU" for i in range(len(correl2))]
+                sim += ["NEST GPU" for i in range(len(correl2))]
                 if(ipop<250):
                     popid += [ipop%8 for i in range(len(correl1))]
                     popid += [ipop%8 for i in range(len(correl2))]
