@@ -11,8 +11,8 @@ import os
 
 nrun = 10
 name = 'spike_times_'
-begin = 1000.0
-end = 11000.0
+begin = 500.0
+end = 10500.0
 npop = 254
 xmin = -0.05
 xmax = 0.15
