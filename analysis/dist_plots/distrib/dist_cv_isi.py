@@ -59,7 +59,7 @@ for j in range(32):
             k=i+j*8
             plt.subplot(4,2,i+1).plot([0], [0], marker=' ', linestyle=' ', label=poplabel[i])
             plt.subplot(4,2,i+1).plot(xnew, y1mean[k], color="navy", label="NEST")
-            plt.subplot(4,2,i+1).plot(xnew, y2mean[k], '--', color="red", label="NeuronGPU")
+            plt.subplot(4,2,i+1).plot(xnew, y2mean[k], '--', color="red", label="NEST GPU")
             if i+1>6:
                 plt.xlabel("CV ISI", fontsize=label)
             plt.tick_params(labelsize=ticks)
@@ -78,7 +78,7 @@ for j in range(32):
             k=i+j*8
             plt.subplot(3,2,i+1).plot([0], [0], marker=' ', linestyle=' ', label=poplabel[i])
             plt.subplot(3,2,i+1).plot(xnew, y1mean[k], color="navy", label="NEST")
-            plt.subplot(3,2,i+1).plot(xnew, y2mean[k], '--', color="red", label="NeuronGPU")
+            plt.subplot(3,2,i+1).plot(xnew, y2mean[k], '--', color="red", label="NEST GPU")
             if i+1>4:
                 plt.xlabel("CV ISI", fontsize=label)
             plt.tick_params(labelsize=ticks)

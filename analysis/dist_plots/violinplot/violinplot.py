@@ -12,12 +12,10 @@ def get_all(file, var_name, xmin, xmax):
     file = file[file[var_name]<=xmax]
     return(file)
 
-#one simulation data
-i_run = 6 #{0..9}
-print("Loading dataset", i_run, "...")
-firing_rate = get_all(pd.read_csv("path_to_firing_rate_vp/run"+str(i_run)+".csv"), "fr", 0.0, 100.0)
-cv_isi = get_all(pd.read_csv("path_to_cv_isi_vp/run"+str(i_run)+".csv"), "cv_isi", 0.0, 5.0)
-correlation = get_all(pd.read_csv("path_to_correlation_vp/run"+str(i_run)+".csv"), "corr", -0.05, 0.2)
+
+firing_rate = get_all(pd.read_csv("path_to_firing_rate_vp_dataset.csv"), "fr", 0.0, 100.0)
+cv_isi = get_all(pd.read_csv("path_to_cv_isi_vp_dataset.csv"), "cv_isi", 0.0, 5.0)
+correlation = get_all(pd.read_csv("path_to_correlation_vp_dataset.csv"), "corr", -0.05, 0.2)
 
 print("Plotting...")
 cifre=20

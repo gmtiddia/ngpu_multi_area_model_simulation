@@ -172,16 +172,16 @@ def sample_plot(firing_rate, cv_isi, correlation, areaid):
 
 
 
-#firing_rate = get_dataset("emd_firing_rate")
-firing_rate = pd.read_csv("emd_firing_rate.csv")
+firing_rate = get_dataset("emd_firing_rate")
+#firing_rate = pd.read_csv("emd_firing_rate.csv")
 #plot_dataset(firing_rate, "firing rate")
 
-#cv_isi = get_dataset("emd_cv_isi")
-cv_isi = pd.read_csv("emd_cv_isi.csv")
+cv_isi = get_dataset("emd_cv_isi")
+#cv_isi = pd.read_csv("emd_cv_isi.csv")
 #plot_dataset(cv_isi, "CV ISI")
 
-correlation = pd.read_csv("emd_corr.csv")
-#correlation = get_dataset("emd_corr")
+#correlation = pd.read_csv("emd_corr.csv")
+correlation = get_dataset("emd_corr")
 #plot_dataset(correlation, "correlation")
 
 

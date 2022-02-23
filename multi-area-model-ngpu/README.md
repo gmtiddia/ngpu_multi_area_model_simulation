@@ -1,4 +1,4 @@
-# NeuronGPU implementation of the Multi-Area Model
+# NEST GPU implementation of the Multi-Area Model
 
 In ``config.py`` is contained a template to submit jobs on a cluster with Slurm. To run the model in a local machine could be used OpenMP and MPI.
 

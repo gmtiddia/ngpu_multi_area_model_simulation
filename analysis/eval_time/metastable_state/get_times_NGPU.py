@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-datapath = "raw_times"
+datapath = ""
 name_times = ['Building', 'Simulation', 'neuron_Update_time',
 'poisson_generator_time', 'GetSpike_time', 'NestedLoop_time', 'SpikeBufferUpdate_time',
 'SpikeReset_time', 'copy_ext_spike_time', 'SendExternalSpike_time', 'SendSpikeToRemote_time',

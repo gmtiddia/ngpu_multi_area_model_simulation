@@ -30,8 +30,8 @@ conn_params = {'g': -11.,
                'fac_nu_ext_5E': 1.125,
                'fac_nu_ext_6E': 1.41666667,
                'av_indegree_V1': 3950.,
-	       'cc_weights_factor': 1.9,
-	       'cc_weights_I_factor': 2.0}
+	           'cc_weights_factor': 1.9,
+	           'cc_weights_I_factor': 2.0}
 input_params = {'rate_ext': 10.}
 
 neuron_params = {'V0_mean': -150.,
@@ -44,7 +44,7 @@ network_params = {'N_scaling': 1.,
                   'neuron_params': neuron_params}
 
 sim_params = {'t_sim': 10000.0,
-              't_presim': 1000.0,
+              't_presim': 500.0,
               'num_processes': 32,
               'local_num_threads': 256,
               'recording_dict': {'record_vm': False, 'areas_recorded':[]}}
