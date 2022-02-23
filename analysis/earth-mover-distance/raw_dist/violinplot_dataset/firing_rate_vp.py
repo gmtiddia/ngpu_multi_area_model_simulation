@@ -27,7 +27,7 @@ for i_run in range(nrun):
         frlist += [i for i in fr1]
         frlist += [i for i in fr2]
         sim += ["NEST" for i in range(len(fr1))]
-        sim += ["NeuronGPU" for i in range(len(fr2))]
+        sim += ["NEST GPU" for i in range(len(fr2))]
         if(ipop<250):
             popid += [ipop%8 for i in range(len(fr1))]
             popid += [ipop%8 for i in range(len(fr2))]
