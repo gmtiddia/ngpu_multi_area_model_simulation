@@ -1,1 +1,0 @@
-{"N_scaling": 1.0, "K_scaling": 1.0, "connection_params": {"g": -11.0, "K_stable": "/p/project/icei-hbp-2020-0007/multi-area-model/multi-area-model-ngpu-tmp2/K_stable.npy", "fac_nu_ext_TH": 1.2, "fac_nu_ext_5E": 1.125, "fac_nu_ext_6E": 1.41666667, "av_indegree_V1": 3950.0}, "input_params": {"rate_ext": 10.0}, "neuron_params": {"V0_mean": -150.0, "V0_sd": 50.0}}

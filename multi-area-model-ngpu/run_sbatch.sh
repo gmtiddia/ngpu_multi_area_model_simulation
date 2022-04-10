@@ -1,12 +1,14 @@
 #!/bin/bash -x
-#SBATCH --account=None
-#SBATCH --nodes=32
+#SBATCH --account=ACCOUNTNAME
+#SBATCH --nodes=8
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=256
-#SBATCH --time=10:00:00
-#SBATCH --partition=None
-#SBATCH --output=/path/test_mam_out.%j
-#SBATCH --error=/path/test_mam_err.%j
+#SBATCH --cpus-per-task=64
+#SBATCH --time=00:10:00
+#SBATCH --partition=gpus
+#SBATCH --mail-user=YOURMAIL
+#SBATCH --mail-type=ALL
+#SBATCH --output=PATH/test_mam_out.%j
+#SBATCH --error=PATH/test_mam_err.%j
 # *** start of job script ***
 # Note: The current working directory at this point is
 # the directory where sbatch was executed.
@@ -20,4 +22,4 @@ else
 fi
 
 cat run_simulation.templ | sed "s/__seed__/$seed/g" > run_simulation.py
-srun -n 32 python3 run_simulation.py
+srun python3 run_simulation.py

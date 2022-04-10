@@ -17,7 +17,7 @@ is identified by a unique hash label.
 
 from mpi4py import MPI
 import json
-import neurongpu as ngpu
+import nestgpu as ngpu
 import numpy as np
 import os
 import pprint
@@ -281,7 +281,30 @@ class Simulation:
         t3b = time.time()
         time_calibrate = t3b - t3
         print("Calibrated network in {0:.2f} seconds.".format(time_calibrate))
-
+        
+        #variabile da spostare nel file di configurazione
+        #time_presim = 1000.0
+        
+        #presimulation
+        """
+        t_presim_interval = 50.0
+        n_presim_interval = int(time_presim/t_presim_interval)
+        t_presim_resid = time_presim - t_presim_interval*n_presim_interval
+        for i_interval in range(n_presim_interval):
+            ngpu.Simulate(t_presim_interval)
+            print("Extracting recorded spike times for presimulation time interval n.", i_interval, "/", n_presim_interval )
+            new_spikes = self.get_recorded_spikes()
+        if t_presim_resid>=self.params['dt']:
+                ngpu.Simulate(t_presim_resid)
+                print("Extracting recorded spike times for presimulation time interval n.", n_presim_interval, "/", n_presim_interval )
+                new_spikes = self.get_recorded_spikes()
+        #vecchio metodo di presimulazione
+        #time_presim = 1000.0
+        #ngpu.Simulate(time_presim)
+        #new_spikes = self.get_recorded_spikes()
+        t3c = time.time()
+        print("Pre simulation time: {0:.2f} seconds.".format(t3c-t3b))
+        """
         if self.areas_recorded == []:
             ngpu.Simulate(self.T_presim)
             t3c = time.time()
@@ -306,7 +329,7 @@ class Simulation:
             t3c = time.time()
             print("Pre simulation time: {0:.2f} seconds.".format(t3c-t3b))
             spike_times_dict = self.empty_spike_times_dict()
-            t_interval = 50.0 
+            t_interval = 50.0 #1000.0
             n_interval = int(self.T/t_interval)
             t_resid = self.T - t_interval*n_interval
             for i_interval in range(n_interval):

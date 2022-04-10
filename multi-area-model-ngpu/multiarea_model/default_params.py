@@ -43,7 +43,7 @@ sim_params = {
     # pre simulation time (in ms)
     't_presim': 500.0,
     # simulated time (in ms)
-    't_sim': 10000.0,
+    't_sim': 1000.0,
     # no. of MPI processes:
     'num_processes': 1,
     # no. of threads per MPI process':

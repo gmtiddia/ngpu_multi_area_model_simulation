@@ -1,19 +1,29 @@
-# NEST GPU implementation of the Multi-Area Model
+# Multi-Area Model simulation with NEST GPU
+This directory enables the simulation of 8 downscaled areas of the Multi-Area Model (MAM) using NEST GPU.
+In this configuration, only the first 8 areas are simulated, whereas the other areas are replaced with Poisson spike generators. The simulation requires 8 nodes, with 1 MPI process each and a GPU per MPI process is needed to simulate the model appropriately.
 
-In ``config.py`` is contained a template to submit jobs on a cluster with Slurm. To run the model in a local machine could be used OpenMP and MPI.
+## How to run the model
+The model can be run with spike recording enabled or disabled. In the directory we provide SLURM files to run the model in a cluster.
+### Spike recording enabled
+Check the model parameters and simulation setting in the file ``run_simulation.templ``. Then edit the file ``run_sbatch.sh`` to set all the details needed to correctly run the siulation (e.g. account name, path to output and error files).
+For a single simulation just type
 
-Running
+```bash
+   sbatch run_sbatch.sh 
 ```
-run.sh
-```
-launches 10 simulations (with spike recording) with different seeds for random number generations, whereas
-```
-run_eval_time.sh
-```
-launches 10 simulations without spike recording. In particular those scripts use the files ``run_simulation.templ`` and ``run_eval_time.templ`` to generate the homonymous Python scripts. The simulation parameters could be modified by editing the .templ files.
 
-Running
+You can also edit the seed for random number generation by typing
+
+```bash
+   sbatch run_sbatch.sh <number>
 ```
-create_symbolic_links.sh
+This script procude first the Python script ``run_simulation.py`` and then runs it to perform the simulation.
+If you want to run 10 simulations recursively you can type
+
+```bash
+   . run.sh
 ```
-in the folder in which the simulations spike times are stored create the folders data0 - data9. Those folders contains in the subfolder ``spikes_pop_idx`` the spike times of each of the 254 populations of the model stored in spike_times_i.dat, where i goes from 0 to 253.
+
+### Spike recording disabled
+To run a simulation without spike recording the instructions are the same as before, but you should use different files.
+The simulation parameters and setting are stored in the file ``run_eval_time.templ``. Then you should edit and run the slurm script ``run_sbatch_eval_time.sh`` for a single simulation or ``run_eval_time.sh`` for a sequence of 10 simulation with different seeds for random number generation.

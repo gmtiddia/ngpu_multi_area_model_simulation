@@ -4,14 +4,14 @@ base_path = ''
 data_path = ''
 # Template for job scripts
 jobscript_template = '''#!/bin/bash -x
-#SBATCH --account=None
+#SBATCH --account=icei-hbp-2020-0007
 #SBATCH --nodes=32
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=256
 #SBATCH --time=02:00:00
-#SBATCH --partition=None
-#SBATCH --output=/path/test_mam_out.%j
-#SBATCH --error=/path/test_mam_err.%j
+#SBATCH --partition=gpus
+#SBATCH --output=path/test_mam_out.%j
+#SBATCH --error=path/test_mam_err.%j
 # *** start of job script ***
 # Note: The current working directory at this point is
 # the directory where sbatch was executed.
