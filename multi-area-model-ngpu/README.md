@@ -3,7 +3,7 @@ This directory enables the simulation of 8 downscaled areas of the Multi-Area Mo
 In this configuration, only the first 8 areas are simulated, whereas the other areas are replaced with Poisson spike generators. The simulation requires 8 nodes, with 1 MPI process each and a GPU per MPI process is needed to simulate the model appropriately.
 
 ## How to run the model
-The model can be run with spike recording enabled or disabled. In the directory we provide SLURM files to run the model in a cluster.
+The model can be run with spike recording enabled or disabled. In the directory we provide SLURM files to run the model in a cluster. The current version supports the most recent spike recording implementation of the library. For this reason, the script ``simulation.py`` has been slightly modified. An older version of the script can be found as ``simulation_old.py``.
 ### Spike recording enabled
 Check the model parameters and simulation setting in the file ``run_simulation.templ``. Then edit the file ``run_sbatch.sh`` to set all the details needed to correctly run the siulation (e.g. account name, path to output and error files).
 For a single simulation just type
