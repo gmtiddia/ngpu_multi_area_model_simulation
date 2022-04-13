@@ -95,7 +95,6 @@ class Simulation:
         self.areas_simulated = self.params['areas_simulated']
         self.areas_recorded = self.params['recording_dict']['areas_recorded']
         self.T = self.params['t_sim']
-        self.T_presim = self.params['t_presim']
 
     def __eq__(self, other):
         # Two simulations are equal if the simulation parameters and
@@ -146,7 +145,7 @@ class Simulation:
 
     def prepare(self):
         """
-        Prepare NeuronGPU Kernel.
+        Prepare NEST GPU Kernel.
         """
         master_seed = self.params['master_seed']
         num_processes = self.params['num_processes']
@@ -281,32 +280,9 @@ class Simulation:
         t3b = time.time()
         time_calibrate = t3b - t3
         print("Calibrated network in {0:.2f} seconds.".format(time_calibrate))
-        
-        #variabile da spostare nel file di configurazione
-        #time_presim = 1000.0
-        
-        #presimulation
-        """
-        t_presim_interval = 50.0
-        n_presim_interval = int(time_presim/t_presim_interval)
-        t_presim_resid = time_presim - t_presim_interval*n_presim_interval
-        for i_interval in range(n_presim_interval):
-            ngpu.Simulate(t_presim_interval)
-            print("Extracting recorded spike times for presimulation time interval n.", i_interval, "/", n_presim_interval )
-            new_spikes = self.get_recorded_spikes()
-        if t_presim_resid>=self.params['dt']:
-                ngpu.Simulate(t_presim_resid)
-                print("Extracting recorded spike times for presimulation time interval n.", n_presim_interval, "/", n_presim_interval )
-                new_spikes = self.get_recorded_spikes()
-        #vecchio metodo di presimulazione
-        #time_presim = 1000.0
-        #ngpu.Simulate(time_presim)
-        #new_spikes = self.get_recorded_spikes()
-        t3c = time.time()
-        print("Pre simulation time: {0:.2f} seconds.".format(t3c-t3b))
-        """
+
         if self.areas_recorded == []:
-            ngpu.Simulate(self.T_presim)
+            ngpu.Simulate(500.0)
             t3c = time.time()
             print("Pre simulation time: {0:.2f} seconds.".format(t3c-t3b))
             ngpu.Simulate(self.T)
@@ -315,36 +291,36 @@ class Simulation:
             print("Simulated network in {0:.2f} seconds.".format(self.time_simulate))
             self.logging()
         else:
-            t_presim_interval = 50.0
-            n_presim_interval = int(self.T_presim/t_presim_interval)
-            t_presim_resid = self.T_presim - t_presim_interval*n_presim_interval
-            for i_interval in range(n_presim_interval):
-                ngpu.Simulate(t_presim_interval)
-                print("Extracting recorded spike times for presimulation time interval n.", i_interval, "/", n_presim_interval )
-                new_spikes = self.get_recorded_spikes()
-                if t_presim_resid>=self.params['dt']:
-                    ngpu.Simulate(t_presim_resid)
-                    print("Extracting recorded spike times for presimulation time interval n.", n_presim_interval, "/", n_presim_interval )
-                    new_spikes = self.get_recorded_spikes()
+            for a in self.areas:                                                                      
+                if a.rank==ngpu.Rank():
+                    for pop in a.populations:
+                        i0 = a.gids[pop][0]
+                        i1 = a.gids[pop][1]
+                        n_nodes = i1 - i0 + 1
+                        neur = ngpu.NodeSeq(i0, n_nodes)
+                        ngpu.SetRecSpikeTimesStep(neur, 500)
+            
+            ngpu.Simulate(500.0)
+            print("Extracting recorded spike times for presimulation")
+            spike_times_dict = self.get_recorded_spikes()
+            for a in self.areas:                                                                      
+                if a.rank==ngpu.Rank():
+                    for pop in a.populations:
+                        i0 = a.gids[pop][0]
+                        i1 = a.gids[pop][1]
+                        n_nodes = i1 - i0 + 1
+                        neur = ngpu.NodeSeq(i0, n_nodes)
+                        ngpu.SetRecSpikeTimesStep(neur, 2000)
+                        
             t3c = time.time()
             print("Pre simulation time: {0:.2f} seconds.".format(t3c-t3b))
-            spike_times_dict = self.empty_spike_times_dict()
-            t_interval = 50.0 #1000.0
-            n_interval = int(self.T/t_interval)
-            t_resid = self.T - t_interval*n_interval
-            for i_interval in range(n_interval):
-                ngpu.Simulate(t_interval)
-                print("Extracting recorded spike times for time interval n.", i_interval, "/", n_interval )
-                new_spikes = self.get_recorded_spikes()
-                for pop in new_spikes:
-                    spike_times_dict[pop] = spike_times_dict[pop] + new_spikes[pop] 
-            if t_resid>=self.params['dt']:
-                ngpu.Simulate(t_resid)
-                print("Extracting recorded spike times for time interval n.", n_interval, "/", n_interval )
-                new_spikes = self.get_recorded_spikes()
-                for pop in new_spikes:
-                    spike_times_dict[pop] = spike_times_dict[pop] + new_spikes[pop] 
-
+            
+            ngpu.Simulate(self.T)
+            t4 = time.time()
+            self.time_simulate = t4 - t3c
+            print("Simulated network in {0:.2f} seconds.".format(self.time_simulate))
+            print("Extracting recorded spike times for simulation")
+            spike_times_dict = self.get_recorded_spikes()
             self.write_spikes(spike_times_dict)
 
     def empty_spike_times_dict(self):
@@ -368,14 +344,16 @@ class Simulation:
                 for pop in a.populations:
                     i0 = a.gids[pop][0]
                     i1 = a.gids[pop][1]
-                    print('   Extracting spikes for area:', a.name, ' population:', pop, ' neuron idx range:', i0, ' ', i1)
+                    n_nodes = i1 - i0 + 1
+                    print('   Extracting spikes for area:', a.name, ' population:', pop, ' neuron idx range:', i0, ' ', i1, flush=True)
                     data = []
-                    for i_neur in range(i0,i1+1):
-                        spike_times = ngpu.GetRecSpikeTimes(i_neur)
+                    spike_times_list = ngpu.GetRecSpikeTimes(ngpu.NodeSeq(i0, n_nodes))
+                    for i in range(n_nodes):
+                        i_neur = i0 + i
+                        spike_times = spike_times_list[i]
                         for t in spike_times:
                             data.append([i_neur, t])
                     spike_times_dict[pop] = data
-                    ngpu.SetStatus(ngpu.NodeSeq(i0, i1 - i0 + 1), 'n_rec_spike_times', 0)
         return spike_times_dict
 
     def write_spikes(self, spike_times_dict):
