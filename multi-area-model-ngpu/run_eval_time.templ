@@ -41,6 +41,7 @@ neuron_params = {'V0_mean': -150.,
 fn = os.path.join(base_path, 'tests/fullscale_rates.json')
 network_params = {'N_scaling': 0.01,
                   'K_scaling': 0.01,
+		  'fullscale_rates': fn,
                   'connection_params': conn_params,
                   'input_params': input_params,
                   'neuron_params': neuron_params}
