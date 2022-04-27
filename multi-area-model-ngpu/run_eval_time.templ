@@ -68,7 +68,7 @@ if rank==0:
                        sim_spec=sim_params)
     label = M.simulation.label
     # Copy run_simulation script to simulation folder
-    shutil.copy2(os.path.join(base_path, 'run_simulation.py'),
+    shutil.copy2(os.path.join(base_path, 'run_eval_time.py'),
                  os.path.join(data_path, label))
 
     # Load simulation parameters
