@@ -306,7 +306,7 @@ def dict_to_vector(d, area_list, structure):
     for target_area in area_list:
         if target_area in structure:
             for target_pop in structure[target_area]:
-                if isinstance(d[target_area][target_pop], collections.Iterable):
+                if isinstance(d[target_area][target_pop], collections.abc.Iterable):
                     V[i] = d[target_area][target_pop][0]
                 else:
                     V[i] = d[target_area][target_pop]
