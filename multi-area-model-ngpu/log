@@ -1,0 +1,237 @@
+--------------------------------------------------------------------------
+WARNING: There is at least non-excluded one OpenFabrics device found,
+but there are no active ports detected (or Open MPI was unable to use
+them).  This is most certainly not what you wanted.  Check your
+cables, subnet manager configuration, etc.  The openib BTL will be
+ignored for this job.
+
+  Local host: iff1678
+--------------------------------------------------------------------------
+
+              -- NEST GPU --
+
+  Copyright (C) 2021 The NEST Initiative
+
+ This program is provided AS IS and comes with
+ NO WARRANTY. See the file LICENSE for details.
+
+ Homepage: https://github.com/nest/nest-gpu
+
+
+              -- NEST GPU --
+
+  Copyright (C) 2021 The NEST Initiative
+
+ This program is provided AS IS and comes with
+ NO WARRANTY. See the file LICENSE for details.
+
+ Homepage: https://github.com/nest/nest-gpu
+
+
+              -- NEST GPU --
+
+  Copyright (C) 2021 The NEST Initiative
+
+ This program is provided AS IS and comes with
+ NO WARRANTY. See the file LICENSE for details.
+
+ Homepage: https://github.com/nest/nest-gpu
+
+
+              -- NEST GPU --
+
+  Copyright (C) 2021 The NEST Initiative
+
+ This program is provided AS IS and comes with
+ NO WARRANTY. See the file LICENSE for details.
+
+ Homepage: https://github.com/nest/nest-gpu
+
+
+              -- NEST GPU --
+
+  Copyright (C) 2021 The NEST Initiative
+
+ This program is provided AS IS and comes with
+ NO WARRANTY. See the file LICENSE for details.
+
+ Homepage: https://github.com/nest/nest-gpu
+
+
+              -- NEST GPU --
+
+  Copyright (C) 2021 The NEST Initiative
+
+
+              -- NEST GPU --
+
+  Copyright (C) 2021 The NEST Initiative
+
+ This program is provided AS IS and comes with
+ NO WARRANTY. See the file LICENSE for details.
+
+ Homepage: https://github.com/nest/nest-gpu
+
+ This program is provided AS IS and comes with
+ NO WARRANTY. See the file LICENSE for details.
+
+ Homepage: https://github.com/nest/nest-gpu
+
+
+              -- NEST GPU --
+
+  Copyright (C) 2021 The NEST Initiative
+
+ This program is provided AS IS and comes with
+ NO WARRANTY. See the file LICENSE for details.
+
+ Homepage: https://github.com/nest/nest-gpu
+
+
+              -- N E S T --
+  Copyright (C) 2004 The NEST Initiative
+
+ Version: HEAD@ed45e47
+ Built: May 17 2024 14:49:16
+
+ This program is provided AS IS and comes with
+ NO WARRANTY. See the file LICENSE for details.
+
+ Problems or suggestions?
+   Visit https://www.nest-simulator.org
+
+ Type 'nest.help()' to find out more about NEST.
+
+
+              -- N E S T --
+  Copyright (C) 2004 The NEST Initiative
+
+ Version: HEAD@ed45e47
+ Built: May 17 2024 14:49:16
+
+ This program is provided AS IS and comes with
+ NO WARRANTY. See the file LICENSE for details.
+
+ Problems or suggestions?
+   Visit https://www.nest-simulator.org
+
+ Type 'nest.help()' to find out more about NEST.
+
+
+              -- N E S T --
+  Copyright (C) 2004 The NEST Initiative
+
+ Version: HEAD@ed45e47
+ Built: May 17 2024 14:49:16
+
+ This program is provided AS IS and comes with
+ NO WARRANTY. See the file LICENSE for details.
+
+ Problems or suggestions?
+   Visit https://www.nest-simulator.org
+
+ Type 'nest.help()' to find out more about NEST.
+
+
+              -- N E S T --
+  Copyright (C) 2004 The NEST Initiative
+
+ Version: HEAD@ed45e47
+ Built: May 17 2024 14:49:16
+
+ This program is provided AS IS and comes with
+ NO WARRANTY. See the file LICENSE for details.
+
+ Problems or suggestions?
+   Visit https://www.nest-simulator.org
+
+ Type 'nest.help()' to find out more about NEST.
+
+
+              -- N E S T --
+  Copyright (C) 2004 The NEST Initiative
+
+ Version: HEAD@ed45e47
+ Built: May 17 2024 14:49:16
+
+ This program is provided AS IS and comes with
+ NO WARRANTY. See the file LICENSE for details.
+
+ Problems or suggestions?
+   Visit https://www.nest-simulator.org
+
+ Type 'nest.help()' to find out more about NEST.
+
+
+              -- N E S T --
+  Copyright (C) 2004 The NEST Initiative
+
+ Version: HEAD@ed45e47
+ Built: May 17 2024 14:49:16
+
+ This program is provided AS IS and comes with
+ NO WARRANTY. See the file LICENSE for details.
+
+ Problems or suggestions?
+   Visit https://www.nest-simulator.org
+
+ Type 'nest.help()' to find out more about NEST.
+
+Initializing network from dictionary.
+RAND_DATA_LABEL 3643
+
+              -- N E S T --
+  Copyright (C) 2004 The NEST Initiative
+
+ Version: HEAD@ed45e47
+ Built: May 17 2024 14:49:16
+
+ This program is provided AS IS and comes with
+ NO WARRANTY. See the file LICENSE for details.
+
+ Problems or suggestions?
+   Visit https://www.nest-simulator.org
+
+ Type 'nest.help()' to find out more about NEST.
+
+
+              -- N E S T --
+  Copyright (C) 2004 The NEST Initiative
+
+ Version: HEAD@ed45e47
+ Built: May 17 2024 14:49:16
+
+ This program is provided AS IS and comes with
+ NO WARRANTY. See the file LICENSE for details.
+
+ Problems or suggestions?
+   Visit https://www.nest-simulator.org
+
+ Type 'nest.help()' to find out more about NEST.
+
+No R installation, taking hard-coded SLN fit parameters.
+
+
+========================================
+Customized parameters
+--------------------
+{'K_scaling': 0.01,
+ 'N_scaling': 0.01,
+ 'connection_params': {'K_stable': '/home/jvillamar/mam_debugging/ngpu_multi_area_model_simulation/multi-area-model-ngpu/K_stable.npy',
+                       'av_indegree_V1': 3950.0,
+                       'cc_weights_I_factor': 2.0,
+                       'cc_weights_factor': 1.9,
+                       'fac_nu_ext_5E': 1.125,
+                       'fac_nu_ext_6E': 1.41666667,
+                       'fac_nu_ext_TH': 1.2,
+                       'g': -11.0,
+                       'replace_non_simulated_areas': 'hom_poisson_stat'},
+ 'fullscale_rates': '/home/jvillamar/mam_debugging/ngpu_multi_area_model_simulation/multi-area-model-ngpu/tests/fullscale_rates.json',
+ 'input_params': {'rate_ext': 10.0},
+ 'neuron_params': {'V0_mean': -150.0, 'V0_sd': 50.0}}
+========================================
+[iff1678:1146413] 7 more processes have sent help message help-mpi-btl-openib.txt / no active ports found
+[iff1678:1146413] Set MCA parameter "orte_base_help_aggregate" to 0 to see all help / error messages
+Simulation label: c460c3854f5ec464a6f0ef5a306dccdc
+Copied files.
+Initialized simulation class.

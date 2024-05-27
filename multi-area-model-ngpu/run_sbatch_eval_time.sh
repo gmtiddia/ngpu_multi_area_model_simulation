@@ -11,7 +11,9 @@
 # Note: The current working directory at this point is
 # the directory where sbatch was executed.
 
-export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
+source ~/mam_debugging/config.sh
+
+export OMP_NUM_THREADS=32
 
 if [ "$#" -ne 1 ]; then
     seed=12345
@@ -20,4 +22,4 @@ else
 fi
 
 cat run_eval_time.templ | sed "s/__seed__/$seed/g" > run_eval_time.py
-srun python3 run_eval_time.py
+mpirun -np 8 bash devices.sh

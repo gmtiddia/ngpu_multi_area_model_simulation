@@ -63,7 +63,7 @@ if rank==0:
     print("Mean-field theory predicts an average "
           "rate of {0:.3f} spikes/s across all populations.".format(np.mean(r[:, -1])))
 
-    sim_params['master_seed'] = __seed__
+    sim_params['master_seed'] = 12345
     M = MultiAreaModel(network_params, simulation=True,
                        sim_spec=sim_params)
     label = M.simulation.label

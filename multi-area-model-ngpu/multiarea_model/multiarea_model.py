@@ -198,6 +198,8 @@ class MultiAreaModel:
                 sim_spec = keywords['sim_spec']
             self.init_simulation(sim_spec)
 
+        print("IMALSOHERE")
+
         if analysis:
             assert(getattr(self, 'simulation'))
             if 'ana_spec' not in keywords:
@@ -205,6 +207,8 @@ class MultiAreaModel:
             else:
                 ana_spec = keywords['ana_spec']
             self.init_analysis(ana_spec)
+        
+        print("IMHERETOO")
 
     def __str__(self):
         s = "Multi-area network {} with custom parameters: \n".format(self.label)

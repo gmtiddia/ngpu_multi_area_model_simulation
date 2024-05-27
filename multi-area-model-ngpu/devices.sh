@@ -1,0 +1,2 @@
+export CUDA_VISIBLE_DEVICES=$OMPI_COMM_WORLD_LOCAL_RANK
+python3 run_eval_time.py
