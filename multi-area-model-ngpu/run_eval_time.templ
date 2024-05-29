@@ -11,10 +11,19 @@ import os
 import sys
 import numpy as np
 from config import base_path, data_path
+
+print("ECCOMI")
+
 from multiarea_model import MultiAreaModel
+
+print("SONO QUI")
+
+
 from mpi4py import MPI
 import shutil
 from multiarea_model.default_params import nested_update, sim_params
+
+print("ORA IMPORTO NEST GPU")
 
 import nestgpu as ngpu
 
@@ -22,6 +31,12 @@ ngpu.ConnectMpiInit()
 
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
+
+
+mpi_np = ngpu.HostNum()
+
+print(mpi_np)
+print(ngpu.HostId())
 
 d = {}
 conn_params = {'g': -11.,
@@ -39,8 +54,8 @@ neuron_params = {'V0_mean': -150.,
                  'V0_sd': 50.}
 
 fn = os.path.join(base_path, 'tests/fullscale_rates.json')
-network_params = {'N_scaling': 0.01,
-                  'K_scaling': 0.01,
+network_params = {'N_scaling': 0.1,
+                  'K_scaling': 0.1,
 		  'fullscale_rates': fn,
                   'connection_params': conn_params,
                   'input_params': input_params,

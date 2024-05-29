@@ -23,6 +23,12 @@ ngpu.ConnectMpiInit()
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 
+
+mpi_np = ngpu.HostNum()
+
+print(mpi_np)
+print(ngpu.HostId())
+
 d = {}
 conn_params = {'g': -11.,
                'K_stable': os.path.join(base_path, 'K_stable.npy'),

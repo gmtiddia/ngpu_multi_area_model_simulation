@@ -1,0 +1,20 @@
++ '[' -z '' ']'
++ case "$-" in
++ __lmod_vx=x
++ '[' -n x ']'
++ set +x
+Shell debugging temporarily silenced: export LMOD_SH_DBG_ON=1 for this output (/p/software/jurecadc/lmod/8.7.12/init/bash)
+Shell debugging restarted
++ unset __lmod_vx
++ '[' 0 -ne 1 ']'
++ seed=12345
++ cat run_eval_time.templ
++ sed s/__seed__/12345/g
++ srun python3 run_eval_time.py
+/p/software/jurecadc/stages/2024/software/SciPy-bundle/2023.07-gcccoreflexiblas-12.3.0-3.3.1/lib/python3.11/site-packages/numpy/core/fromnumeric.py:3504: RuntimeWarning:Mean of empty slice.
+/p/software/jurecadc/stages/2024/software/SciPy-bundle/2023.07-gcccoreflexiblas-12.3.0-3.3.1/lib/python3.11/site-packages/numpy/core/_methods.py:129: RuntimeWarning:invalid value encountered in scalar divide
+/p/project/cjinb33/tiddia1/mam_2024/multi-area-model-ngpu/multiarea_model/data_multiarea/Model.py:878: FutureWarning:`rcond` parameter will change to the default of machine precision times ``max(M, N)`` where M and N are the input matrix dimensions.
+To use the future default and silence this warning we advise to pass `rcond=None`, to keep using the old, explicitly pass `rcond=-1`.
+/p/home/jusers/tiddia1/jureca/.local/lib/python3.11/site-packages/dicthash/dicthash.py:47: UserWarning:Float too small for safe conversion tointeger. Rounding down to zero.
+srun: Job step aborted: Waiting up to 6 seconds for job step to finish.
+srun: error: jrc0292: tasks 0-3: Terminated

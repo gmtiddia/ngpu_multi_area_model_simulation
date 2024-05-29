@@ -1,7 +1,7 @@
 # Absolute path of repository
-base_path = '/home/tiddia/mam_debugging/multi-area-model-ngpu'
+base_path = '/p/project/cjinb33/tiddia1/mam_2024/multi-area-model-ngpu'
 # Place to store simulations
-data_path = '/home/tiddia/mam_debugging/multi-area-model-ngpu/simulations'
+data_path = '/p/project/cjinb33/tiddia1/mam_2024/multi-area-model-ngpu/simulations'
 # Template for job scripts
 jobscript_template = '''#!/bin/bash -x
 #SBATCH --account=icei-hbp-2020-0007
