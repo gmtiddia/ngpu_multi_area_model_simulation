@@ -155,7 +155,8 @@ class Simulation:
                               'max_spike_num_fact': 0.04,
                               'max_spike_per_host_fact': 0.04,
                               'max_node_n_bits': 22,
-                              'max_syn_n_bits': 2})
+                              'max_syn_n_bits': 2,
+                              'spike_buffer_algo': 0})
         self.pyrngs = [np.random.RandomState(s) for s in list(range(
             master_seed + vp + 1, master_seed + 2 * (vp + 1)))]
 
@@ -179,6 +180,7 @@ class Simulation:
         allocated_areas = []
         for rank in range(num_ranks):
             area_name, area_size = area_sizes[rank]
+            capacity = areas_by_rank[rank][0]
             assert 0 <= capacity - area_size
             areas_by_rank[rank][0] -= area_size
             areas_by_rank[rank][1].append(area_name)
@@ -190,6 +192,7 @@ class Simulation:
                     rank_area[0] -= area_size
                     rank_area[1].append(area_name)
                     allocated_areas.append(area_name)
+        
         assert len(allocated_areas) == len(area_sizes)
 
         save_dict = {
