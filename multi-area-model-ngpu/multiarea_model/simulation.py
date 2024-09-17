@@ -163,7 +163,7 @@ class Simulation:
         """
         Create all areas with their populations and internal connections.
         """
-        
+        num_ranks = ngpu.HostNum()
         self.areas = []
         K_areas = self.network.K_areas
         area_sizes = {}
@@ -175,19 +175,22 @@ class Simulation:
 
         area_sizes = sorted(area_sizes.items(), key=lambda x: x[1], reverse=True)
         bin_capacity = 25 * 10**8 + 225 * 5000
-        areas_by_rank = [[bin_capacity, []] for _ in range(ngpu.HostNum())]
+        areas_by_rank = [[bin_capacity, []] for _ in range(num_ranks)]
         allocated_areas = []
-        used_ranks = set()
-        for area_name, area_size in area_sizes:
-            for irank, rank_area in enumerate(areas_by_rank):
+        for rank in range(num_ranks):
+            area_name, area_size = area_sizes[rank]
+            assert 0 <= capacity - area_size
+            areas_by_rank[rank][0] -= area_size
+            areas_by_rank[rank][1].append(area_name)
+            allocated_areas.append(area_name)
+        for area_name, area_size in area_sizes[num_ranks:]:
+            for rank_area in areas_by_rank:
                 capacity = rank_area[0]
                 if 0 <= capacity - area_size:
                     rank_area[0] -= area_size
                     rank_area[1].append(area_name)
                     allocated_areas.append(area_name)
-                    used_ranks.add(irank)
         assert len(allocated_areas) == len(area_sizes)
-        assert len(used_ranks) == len(areas_by_rank)
 
         save_dict = {
         "K_areas": K_areas,
