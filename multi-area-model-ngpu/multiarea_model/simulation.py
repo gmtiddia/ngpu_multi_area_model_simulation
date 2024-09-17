@@ -192,6 +192,7 @@ class Simulation:
                     rank_area[0] -= area_size
                     rank_area[1].append(area_name)
                     allocated_areas.append(area_name)
+                    break
 
         save_dict = {
         "K_areas": K_areas,
