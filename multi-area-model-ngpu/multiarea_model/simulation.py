@@ -151,9 +151,11 @@ class Simulation:
         num_processes = self.params['num_processes']
         local_num_threads = self.params['local_num_threads']
         vp = num_processes * local_num_threads
-        ngpu.SetKernelStatus({'rnd_seed': master_seed + ngpu.HostId(),
-                              'max_spike_num_fact': 0.01,
-                              'max_spike_per_host_fact': 0.01})
+        ngpu.SetKernelStatus({'rnd_seed': master_seed,
+                              'max_spike_num_fact': 0.04,
+                              'max_spike_per_host_fact': 0.04,
+                              'max_node_n_bits': 22,
+                              'max_syn_n_bits': 2})
         self.pyrngs = [np.random.RandomState(s) for s in list(range(
             master_seed + vp + 1, master_seed + 2 * (vp + 1)))]
 
@@ -161,12 +163,47 @@ class Simulation:
         """
         Create all areas with their populations and internal connections.
         """
+        
         self.areas = []
-        arank = 0
+        K_areas = self.network.K_areas
+        area_sizes = {}
         for area_name in self.areas_simulated:
-            a = Area(self, self.network, area_name, arank)
-            self.areas.append(a)
-            arank = arank + 1
+            total_cons = 0
+            for connections in K_areas[area_name].values():
+                total_cons += connections
+            area_sizes[area_name] = total_cons + self.network.N[area_name]["total"] * 5
+
+        area_sizes = sorted(area_sizes.items(), key=lambda x: x[1], reverse=True)
+        bin_capacity = 25 * 10**8 + 225 * 5000
+        areas_by_rank = [[bin_capacity, []] for _ in range(ngpu.HostNum())]
+        allocated_areas = []
+        used_ranks = set()
+        for area_name, area_size in area_sizes:
+            for irank, rank_area in enumerate(areas_by_rank):
+                capacity = rank_area[0]
+                if 0 <= capacity - area_size:
+                    rank_area[0] -= area_size
+                    rank_area[1].append(area_name)
+                    allocated_areas.append(area_name)
+                    used_ranks.add(irank)
+        assert len(allocated_areas) == len(area_sizes)
+        assert len(used_ranks) == len(areas_by_rank)
+
+        save_dict = {
+        "K_areas": K_areas,
+        "num_neurons_per_area": self.network.N,
+        "areas_sizes": area_sizes,
+        "areas_by_rank": areas_by_rank
+        }
+
+        with open(os.path.join(self.data_dir,
+                               '_'.join(('areasort_params', self.rank))), 'w') as f:
+            json.dump(save_dict, f, indent=4)
+
+        for rank, (_, area_list)  in enumerate(areas_by_rank):
+            for area_name in area_list:
+                a = Area(self, self.network, area_name, rank)
+                self.areas.append(a)
 
 
     def cortico_cortical_input(self):
@@ -458,6 +495,7 @@ class Area:
             self.external_synapses[pop] = self.network.K[self.name][pop]['external']['external']
 
         self.create_populations()
+        self.create_devices()
         if rank==ngpu.HostId():
             print("Rank {}: created area {} with {} local nodes".format(ngpu.HostId(),
                                                                         self.name,
@@ -480,6 +518,18 @@ class Area:
         elif isinstance(other, str):
             return self.name == other
 
+    def create_devices(self):
+        """
+        Create input devices of the area.
+        """
+        self.poisson_generators = []
+        for pop in self.populations:
+            remote_pg = ngpu.RemoteCreate(self.rank, 'poisson_generator', 1)
+            pg = remote_pg.node_seq
+            self.poisson_generators.append(pg[0])
+            if ngpu.HostId() == self.rank:
+                print('Created 1 poisson generator for area n. ', self.rank, ' population:', pop, flush=True)
+            
     def create_populations(self):
         """
         Create all populations of the area.
@@ -535,20 +585,21 @@ class Area:
         #        nest.Connect(self.simulation.voltmeter,
         #                     tuple(range(self.gids[pop][0], self.gids[pop][0] + nrec + 1)))
         if self.network.params['input_params']['poisson_input']:
-            self.poisson_generators = []
-            for pop in self.populations:
+            #self.poisson_generators = []
+            for ipop, pop in enumerate(self.populations):
                 K_ext = self.external_synapses[pop]
                 W_ext = self.network.W[self.name][pop]['external']['external']
-                pg = ngpu.Create('poisson_generator', 1)
-                print('Created 1 poisson generator for area n. ', self.rank, ' population:', pop, flush=True)
+                #pg = ngpu.Create('poisson_generator', 1)
+                #print('Created 1 poisson generator for area n. ', self.rank, ' population:', pop, flush=True)
+                pg = self.poisson_generators[ipop]
                 ngpu.SetStatus(
-                    pg, {'rate': self.network.params['input_params']['rate_ext'] * K_ext})
+                    [pg], {'rate': self.network.params['input_params']['rate_ext'] * K_ext})
                 conn_spec = {'rule': 'all_to_all'}
                 syn_spec = {'weight': W_ext, 'delay': 0.1}
                 i0 = self.gids[pop][0]
                 n = self.gids[pop][1] - i0 + 1
-                ngpu.Connect(pg, ngpu.NodeSeq(i0, n), conn_spec, syn_spec)
-                self.poisson_generators.append(pg[0])
+                ngpu.Connect([pg], ngpu.NodeSeq(i0, n), conn_spec, syn_spec)
+                #self.poisson_generators.append(pg[0])
 
     def create_additional_input(self, input_type, source_area_name, cc_input):
         """
