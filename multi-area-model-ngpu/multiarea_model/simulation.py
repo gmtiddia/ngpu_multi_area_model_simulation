@@ -166,12 +166,13 @@ class Simulation:
         """
         num_ranks = ngpu.HostNum()
         self.areas = []
-        K_areas = self.network.K_areas
         area_sizes = {}
         for area_name in self.areas_simulated:
             total_cons = 0
-            for connections in K_areas[area_name].values():
-                total_cons += connections
+            for inner_pop in self.network.synapses[area_name].values():
+                for source_area in inner_pop.values():
+                    for source_pop in source_area.values():
+                        total_cons += source_pop
             area_sizes[area_name] = total_cons + self.network.N[area_name]["total"] * 5
 
         area_sizes = sorted(area_sizes.items(), key=lambda x: x[1], reverse=True)
@@ -195,8 +196,6 @@ class Simulation:
                     break
 
         save_dict = {
-        "K_areas": K_areas,
-        "num_neurons_per_area": self.network.N,
         "areas_sizes": area_sizes,
         "areas_by_rank": areas_by_rank
         }
