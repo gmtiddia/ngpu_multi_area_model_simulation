@@ -192,8 +192,6 @@ class Simulation:
                     rank_area[0] -= area_size
                     rank_area[1].append(area_name)
                     allocated_areas.append(area_name)
-        
-        assert len(allocated_areas) == len(area_sizes)
 
         save_dict = {
         "K_areas": K_areas,
@@ -201,6 +199,9 @@ class Simulation:
         "areas_sizes": area_sizes,
         "areas_by_rank": areas_by_rank
         }
+        
+        if len(allocated_areas) != len(area_sizes):
+            raise RuntimeError("Not all simulated areas could be assigned to ranks.", save_dict)
 
         with open(os.path.join(self.data_dir,
                                '_'.join(('areasort_params', self.rank))), 'w') as f:
