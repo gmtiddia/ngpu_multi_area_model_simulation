@@ -175,33 +175,24 @@ class Simulation:
                         total_cons += source_pop
             area_sizes[area_name] = total_cons + self.network.N[area_name]["total"] * 5
 
-        area_sizes = sorted(area_sizes.items(), key=lambda x: x[1], reverse=True)
-        bin_capacity = 25 * 10**8 + 225 * 5000
-        areas_by_rank = [[bin_capacity, []] for _ in range(num_ranks)]
-        allocated_areas = []
-        for rank in range(num_ranks):
-            area_name, area_size = area_sizes[rank]
-            capacity = areas_by_rank[rank][0]
-            assert 0 <= capacity - area_size
-            areas_by_rank[rank][0] -= area_size
-            areas_by_rank[rank][1].append(area_name)
-            allocated_areas.append(area_name)
-        for area_name, area_size in area_sizes[num_ranks:]:
-            for rank_area in areas_by_rank:
-                capacity = rank_area[0]
-                if 0 <= capacity - area_size:
-                    rank_area[0] -= area_size
-                    rank_area[1].append(area_name)
-                    allocated_areas.append(area_name)
-                    break
+        sorted_area_sizes = sorted(area_sizes.items(), key=lambda x: x[1])
+        areas_by_rank = [[] for _ in range(num_ranks)]
+        reverse = False
+        while len(sorted_area_sizes) > 0:
+            if reverse:
+                sorted_area_sizes = reversed(sorted_area_sizes)
+            try:
+                for rank in range(num_ranks):
+                        area_name, _ = sorted_area_sizes.pop()
+                        areas_by_rank[rank].append(area_name)
+            except IndexError:
+                break
+            reverse = not reverse
 
         save_dict = {
         "areas_sizes": area_sizes,
         "areas_by_rank": areas_by_rank
         }
-        
-        if len(allocated_areas) != len(area_sizes):
-            raise RuntimeError("Not all simulated areas could be assigned to ranks.", save_dict)
 
         with open(os.path.join(self.data_dir,
                                '_'.join(('areasort_params', self.rank))), 'w') as f:
