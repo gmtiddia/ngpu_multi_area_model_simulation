@@ -1,19 +1,14 @@
 #!/bin/bash -x
-#SBATCH --account=ACCOUNTNAME
-#SBATCH --nodes=8
+#SBATCH --account=icei-hbp-2020-0007
+#SBATCH --nodes=32
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=64
-#SBATCH --time=00:10:00
+#SBATCH --time=02:40:00
 #SBATCH --partition=gpus
-#SBATCH --mail-user=YOURMAIL
-#SBATCH --mail-type=ALL
-#SBATCH --output=PATH/test_mam_out.%j
-#SBATCH --error=PATH/test_mam_err.%j
+#SBATCH --output=/p/project1/icei-hbp-2020-0007/mam_mpi_comm_2024_tiddia/multi-area-model-ngpu/logfiles/test_mam_out.%j
+#SBATCH --error=/p/project1/icei-hbp-2020-0007/mam_mpi_comm_2024_tiddia/multi-area-model-ngpu/logfiles/test_mam_err.%j
 # *** start of job script ***
 # Note: The current working directory at this point is
 # the directory where sbatch was executed.
-
-export OMP_NUM_THREADS=${SLURM_CPUS_PER_TASK}
 
 if [ "$#" -ne 1 ]; then
     seed=12345

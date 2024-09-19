@@ -173,14 +173,14 @@ class Simulation:
                 for source_area in inner_pop.values():
                     for source_pop in source_area.values():
                         total_cons += source_pop
-            area_sizes[area_name] = total_cons + self.network.N[area_name]["total"] * 5
+            area_sizes[area_name] = total_cons + self.network.N[area_name]["total"] * 3
 
         sorted_area_sizes = sorted(area_sizes.items(), key=lambda x: x[1])
         areas_by_rank = [[] for _ in range(num_ranks)]
         reverse = False
         while len(sorted_area_sizes) > 0:
             if reverse:
-                sorted_area_sizes = reversed(sorted_area_sizes)
+                sorted_area_sizes = list(reversed(sorted_area_sizes))
             try:
                 for rank in range(num_ranks):
                         area_name, _ = sorted_area_sizes.pop()
@@ -195,11 +195,11 @@ class Simulation:
         }
 
         with open(os.path.join(self.data_dir,
-                               '_'.join(('areasort_params', self.rank))), 'w') as f:
+                               '_'.join(('areasort_params', str(ngpu.HostId())))), 'w') as f:
             json.dump(save_dict, f, indent=4)
 
-        for rank, (_, area_list)  in enumerate(areas_by_rank):
-            for area_name in area_list:
+        for rank, rank_area  in enumerate(areas_by_rank):
+            for area_name in rank_area:
                 a = Area(self, self.network, area_name, rank)
                 self.areas.append(a)
 

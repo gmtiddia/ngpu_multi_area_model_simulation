@@ -45,29 +45,28 @@ neuron_params = {'V0_mean': -150.,
                  'V0_sd': 50.}
 
 fn = os.path.join(base_path, 'tests/fullscale_rates.json')
-network_params = {'N_scaling': 0.01,
-                  'K_scaling': 0.01,
+network_params = {'N_scaling': 1.0,
+                  'K_scaling': 1.0,
 		  'fullscale_rates': fn,
                   'connection_params': conn_params,
                   'input_params': input_params,
                   'neuron_params': neuron_params}
 
 sim_params = {'t_sim': 10000.,
-              'areas_simulated': ['V1', 'V2', 'VP', 'V3'],
-              'num_processes': 4,
-              'local_num_threads': 64,
+              'num_processes': 32,
+              'local_num_threads': 512,
               'recording_dict': {'record_vm': False, 'areas_recorded':[]}}
 
 theory_params = {'dt': 0.1}
 
 if rank==0:
-    M = MultiAreaModel(network_params, simulation=True,
-                       sim_spec=sim_params,
-                       theory=True,
-                       theory_spec=theory_params)
-    p, r = M.theory.integrate_siegert()
-    print("Mean-field theory predicts an average "
-          "rate of {0:.3f} spikes/s across all populations.".format(np.mean(r[:, -1])))
+    #M = MultiAreaModel(network_params, simulation=True,
+    #                   sim_spec=sim_params,
+    #                   theory=False,
+    #                   theory_spec=theory_params)
+    #p, r = M.theory.integrate_siegert()
+    #print("Mean-field theory predicts an average "
+    #      "rate of {0:.3f} spikes/s across all populations.".format(np.mean(r[:, -1])))
 
     sim_params['master_seed'] = 12345
     M = MultiAreaModel(network_params, simulation=True,
@@ -121,5 +120,5 @@ M = MultiAreaModel(network_label,
                    simulation=True,
                    analysis=False,
                    sim_spec=custom_params['sim_params'])
-print("IMHERE")
+
 M.simulation.simulate()
