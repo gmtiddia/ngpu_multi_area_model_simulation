@@ -176,15 +176,17 @@ class Simulation:
             area_sizes[area_name] = total_cons + self.network.N[area_name]["total"] * 3
 
         sorted_area_sizes = sorted(area_sizes.items(), key=lambda x: x[1])
-        areas_by_rank = [[] for _ in range(num_ranks)]
+        areas_by_rank = dict((rank, {}) for rank in range(num_ranks))
         reverse = False
         while len(sorted_area_sizes) > 0:
             if reverse:
                 sorted_area_sizes = list(reversed(sorted_area_sizes))
             try:
-                for rank in range(num_ranks):
-                        area_name, _ = sorted_area_sizes.pop()
-                        areas_by_rank[rank].append(area_name)
+                for rank_areas_tuple in sorted(areas_by_rank.items(), key=lambda x: sum(x[1].values())):
+                        area_name, area_size = sorted_area_sizes.pop()
+                        rank = rank_areas_tuple[0]
+                        allocated_areas_dict = rank_areas_tuple[1]
+                        allocated_areas_dict[area_name] = area_size
             except IndexError:
                 break
             reverse = not reverse
@@ -198,8 +200,8 @@ class Simulation:
                                '_'.join(('areasort_params', str(ngpu.HostId())))), 'w') as f:
             json.dump(save_dict, f, indent=4)
 
-        for rank, rank_area  in enumerate(areas_by_rank):
-            for area_name in rank_area:
+        for rank, allocated_areas_dict  in areas_by_rank.items():
+            for area_name in allocated_areas_dict:
                 a = Area(self, self.network, area_name, rank)
                 self.areas.append(a)
 
