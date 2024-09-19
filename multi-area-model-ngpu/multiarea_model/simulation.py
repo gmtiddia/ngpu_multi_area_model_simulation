@@ -182,11 +182,8 @@ class Simulation:
             if reverse:
                 sorted_area_sizes = list(reversed(sorted_area_sizes))
             try:
-                for rank_areas_tuple in sorted(areas_by_rank.items(), key=lambda x: sum(x[1].values())):
-                        area_name, area_size = sorted_area_sizes.pop()
-                        rank = rank_areas_tuple[0]
-                        allocated_areas_dict = rank_areas_tuple[1]
-                        allocated_areas_dict[area_name] = area_size
+                for _, allocated_areas_dict in sorted(areas_by_rank.items(), key=lambda x: sum(x[1].values())):
+                        allocated_areas_dict.update((sorted_area_sizes.pop(),))
             except IndexError:
                 break
             reverse = not reverse
