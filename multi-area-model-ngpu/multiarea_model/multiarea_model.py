@@ -49,7 +49,7 @@ from .multiarea_helpers import (
     vector_to_dict,
 )
 from .simulation import Simulation
-from .theory import Theory
+#from .theory import Theory
 
 # Set precision of dicthash library to 1e-4
 # because this is sufficient for indegrees

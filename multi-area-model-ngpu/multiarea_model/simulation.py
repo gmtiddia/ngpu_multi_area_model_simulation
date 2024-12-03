@@ -22,8 +22,7 @@ import numpy as np
 import os
 import pprint
 import shutil
-import time
-import scipy.stats
+from time import perf_counter_ns
 
 from .analysis_helpers import _load_npy_to_dict, model_iter
 from config import base_path, data_path
@@ -148,14 +147,17 @@ class Simulation:
         Prepare NEST GPU Kernel.
         """
         master_seed = self.params['master_seed']
-        num_processes = self.params['num_processes']
-        local_num_threads = self.params['local_num_threads']
-        vp = num_processes * local_num_threads
-        ngpu.SetKernelStatus({'rnd_seed': master_seed + ngpu.HostId(),
-                              'max_spike_num_fact': 0.01,
-                              'max_spike_per_host_fact': 0.01})
-        self.pyrngs = [np.random.RandomState(s) for s in list(range(
-            master_seed + vp + 1, master_seed + 2 * (vp + 1)))]
+        #num_processes = self.params['num_processes']
+        #local_num_threads = self.params['local_num_threads']
+        #vp = num_processes * local_num_threads
+        ngpu.SetKernelStatus({'rnd_seed': master_seed,
+                              'max_spike_num_fact': 0.04,
+                              'max_spike_per_host_fact': 0.04,
+                              'max_node_n_bits': 22,
+                              'max_syn_n_bits': 2,
+                              'spike_buffer_algo': 0})
+        #self.pyrngs = [np.random.RandomState(s) for s in list(range(
+        #    master_seed + vp + 1, master_seed + 2 * (vp + 1)))]
 
     def create_areas(self):
         """
@@ -166,6 +168,12 @@ class Simulation:
         for area_name in self.areas_simulated:
             a = Area(self, self.network, area_name, arank)
             self.areas.append(a)
+            if arank==ngpu.HostId():
+                self.areas_timers = {}
+                self.areas_timers['create_neurons'] = a.time_create_local_neurons
+                self.areas_timers['connect_neurons'] = a.time_connect_local_neurons
+                self.areas_timers['create_devices'] = a.time_create_local_devices
+                self.areas_timers['connect_devices'] = a.time_connect_local_devices
             arank = arank + 1
 
 
@@ -254,41 +262,47 @@ class Simulation:
         Create the network and execute simulation.
         Record wallclock time.
         """
-        t0 = time.time()
+        t0 = perf_counter_ns()
         self.prepare()
-        t1 = time.time()
+        t1 = perf_counter_ns()
         self.time_prepare = t1 - t0
-        print("Prepared simulation in {0:.2f} seconds.".format(self.time_prepare), flush=True)
+        print("Prepared simulation in {0:.2f} seconds.".format(self.time_prepare/1e9), flush=True)
 
+        t2 = perf_counter_ns()
         self.create_areas()
+        t3 = perf_counter_ns()
 
-        t2 = time.time()
-        self.time_network_local = t2 - t1
+        self.time_network_local = t3 - t2
         print("Created areas and internal connections in {0:.2f} seconds.".format(
-            self.time_network_local))
+            self.time_network_local/1e9))
 
+        t4 = perf_counter_ns()
         self.cortico_cortical_input()
-        t3 = time.time()
+        t5 = perf_counter_ns()
 
-        self.time_network_global = t3 - t2
+        self.time_network_global = t5 - t4
         print("Created cortico-cortical connections in {0:.2f} seconds.".format(
-            self.time_network_global))
+            self.time_network_global/1e9))
 
         self.save_network_gids()
 
+        t6 = perf_counter_ns()
         ngpu.Calibrate()
-        t3b = time.time()
-        time_calibrate = t3b - t3
-        print("Calibrated network in {0:.2f} seconds.".format(time_calibrate))
+        t7 = perf_counter_ns()
+        self.time_calibrate = t7 - t6
+        print("Calibrated network in {0:.2f} seconds.".format(self.time_calibrate/1e9))
 
         if self.areas_recorded == []:
+            t8 = perf_counter_ns()
             ngpu.Simulate(500.0)
-            t3c = time.time()
-            print("Pre simulation time: {0:.2f} seconds.".format(t3c-t3b))
+            t9 = perf_counter_ns()
+            self.time_presimulate = t9 - t8
+            print("Pre simulation time: {0:.2f} seconds.".format(self.time_presimulate/1e9))
+            t10 = perf_counter_ns()
             ngpu.Simulate(self.T)
-            t4 = time.time()
-            self.time_simulate = t4 - t3c
-            print("Simulated network in {0:.2f} seconds.".format(self.time_simulate))
+            t11 = perf_counter_ns()
+            self.time_simulate = t11 - t10
+            print("Simulated network in {0:.2f} seconds.".format(self.time_simulate/1e9))
             self.logging()
         else:
             for a in self.areas:                                                                      
@@ -300,7 +314,9 @@ class Simulation:
                         neur = ngpu.NodeSeq(i0, n_nodes)
                         ngpu.SetRecSpikeTimesStep(neur, 500)
             
+            t8 = perf_counter_ns()
             ngpu.Simulate(500.0)
+            
             print("Extracting recorded spike times for presimulation")
             spike_times_dict = self.get_recorded_spikes()
             for a in self.areas:                                                                      
@@ -312,13 +328,15 @@ class Simulation:
                         neur = ngpu.NodeSeq(i0, n_nodes)
                         ngpu.SetRecSpikeTimesStep(neur, 2000)
                         
-            t3c = time.time()
-            print("Pre simulation time: {0:.2f} seconds.".format(t3c-t3b))
+            t9 = perf_counter_ns()
+            print("Pre simulation time: {0:.2f} seconds.".format((t9-t8)/1e9))
             
+
+            t10 = perf_counter_ns()
             ngpu.Simulate(self.T)
-            t4 = time.time()
-            self.time_simulate = t4 - t3c
-            print("Simulated network in {0:.2f} seconds.".format(self.time_simulate))
+            t11 = perf_counter_ns()
+            self.time_simulate = t11 - t10
+            print("Simulated network in {0:.2f} seconds.".format(self.time_simulate/1e9))
             print("Extracting recorded spike times for simulation")
             spike_times_dict = self.get_recorded_spikes()
             self.write_spikes(spike_times_dict)
@@ -383,8 +401,14 @@ class Simulation:
         to file.
         """
         d = {'time_prepare': self.time_prepare,
-             'time_network_local': self.time_network_local,
-             'time_network_global': self.time_network_global,
+             'time_create_neurons': self.areas_timers['create_neurons'],
+             'time_connect_local': self.areas_timers['connect_neurons'],
+             'time_create_devices': self.areas_timers['create_devices'],
+             'time_connect_devices': self.areas_timers['connect_devices'],
+             'time_network_local_tot': self.time_network_local,
+             'time_connect_global': self.time_network_global,
+             'time_calibrate': self.time_calibrate,
+             'time_presimulate': self.time_presimulate,
              'time_simulate': self.time_simulate}
 
         fn = os.path.join(self.data_dir,
@@ -457,13 +481,33 @@ class Area:
         for pop in self.populations:
             self.external_synapses[pop] = self.network.K[self.name][pop]['external']['external']
 
+        t0_create_neurons = perf_counter_ns()
         self.create_populations()
+        t1_create_neurons = perf_counter_ns()
+
+        t0_create_devices = perf_counter_ns()
+        self.create_devices()
+        t1_create_devices = perf_counter_ns()
+        
+        
         if rank==ngpu.HostId():
             print("Rank {}: created area {} with {} local nodes".format(ngpu.HostId(),
                                                                         self.name,
                                                                         self.num_local_nodes), flush=True)
+            t0_connect_devices = perf_counter_ns()
             self.connect_devices()
+            t1_connect_devices = perf_counter_ns()
+            
+
+            t0_connect_neurons = perf_counter_ns()
             self.connect_populations()
+            t1_connect_neurons = perf_counter_ns()
+
+            self.time_create_local_neurons = t1_create_neurons - t0_create_neurons
+            self.time_connect_local_devices = t1_connect_devices - t0_connect_devices
+            self.time_create_local_devices = t1_create_devices - t0_create_devices
+            self.time_connect_local_neurons = t1_connect_neurons - t0_connect_neurons
+
             print("Created internal connections of area n. ", rank, " in mpi proc. ", ngpu.HostId(), flush=True)
 
     def __str__(self):
@@ -480,6 +524,18 @@ class Area:
         elif isinstance(other, str):
             return self.name == other
 
+    def create_devices(self):
+        """
+        Create input devices of the area.
+        """
+        self.poisson_generators = []
+        for pop in self.populations:
+            remote_pg = ngpu.RemoteCreate(self.rank, 'poisson_generator', 1)
+            pg = remote_pg.node_seq
+            self.poisson_generators.append(pg[0])
+            if ngpu.HostId() == self.rank:
+                print('Created 1 poisson generator for area n. ', self.rank, ' population:', pop, flush=True)
+            
     def create_populations(self):
         """
         Create all populations of the area.
@@ -535,20 +591,21 @@ class Area:
         #        nest.Connect(self.simulation.voltmeter,
         #                     tuple(range(self.gids[pop][0], self.gids[pop][0] + nrec + 1)))
         if self.network.params['input_params']['poisson_input']:
-            self.poisson_generators = []
-            for pop in self.populations:
+            #self.poisson_generators = []
+            for ipop, pop in enumerate(self.populations):
                 K_ext = self.external_synapses[pop]
                 W_ext = self.network.W[self.name][pop]['external']['external']
-                pg = ngpu.Create('poisson_generator', 1)
-                print('Created 1 poisson generator for area n. ', self.rank, ' population:', pop, flush=True)
+                #pg = ngpu.Create('poisson_generator', 1)
+                #print('Created 1 poisson generator for area n. ', self.rank, ' population:', pop, flush=True)
+                pg = self.poisson_generators[ipop]
                 ngpu.SetStatus(
-                    pg, {'rate': self.network.params['input_params']['rate_ext'] * K_ext})
+                    [pg], {'rate': self.network.params['input_params']['rate_ext'] * K_ext})
                 conn_spec = {'rule': 'all_to_all'}
                 syn_spec = {'weight': W_ext, 'delay': 0.1}
                 i0 = self.gids[pop][0]
                 n = self.gids[pop][1] - i0 + 1
-                ngpu.Connect(pg, ngpu.NodeSeq(i0, n), conn_spec, syn_spec)
-                self.poisson_generators.append(pg[0])
+                ngpu.Connect([pg], ngpu.NodeSeq(i0, n), conn_spec, syn_spec)
+                #self.poisson_generators.append(pg[0])
 
     def create_additional_input(self, input_type, source_area_name, cc_input):
         """
