@@ -94,6 +94,7 @@ class Simulation:
         self.areas_simulated = self.params['areas_simulated']
         self.areas_recorded = self.params['recording_dict']['areas_recorded']
         self.T = self.params['t_sim']
+        self.T_presim = self.params['t_presim']
 
     def __eq__(self, other):
         # Two simulations are equal if the simulation parameters and
@@ -325,7 +326,7 @@ class Simulation:
 
         if self.areas_recorded == []:
             t8 = perf_counter_ns()
-            ngpu.Simulate(500.0)
+            ngpu.Simulate(self.T_presim)
             t9 = perf_counter_ns()
             self.time_presimulate = t9 - t8
             print("Pre simulation time: {0:.2f} seconds.".format(self.time_presimulate/1e9))
@@ -346,7 +347,7 @@ class Simulation:
                         ngpu.SetRecSpikeTimesStep(neur, 500)
             
             t8 = perf_counter_ns()
-            ngpu.Simulate(500.0)
+            ngpu.Simulate(self.T_presim)
             
             print("Extracting recorded spike times for presimulation")
             spike_times_dict = self.get_recorded_spikes()
