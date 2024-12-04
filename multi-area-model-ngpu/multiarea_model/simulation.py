@@ -163,18 +163,49 @@ class Simulation:
         """
         Create all areas with their populations and internal connections.
         """
+        num_ranks = ngpu.HostNum()
         self.areas = []
-        arank = 0
+        area_sizes = {}
         for area_name in self.areas_simulated:
-            a = Area(self, self.network, area_name, arank)
-            self.areas.append(a)
+            total_cons = 0
+            for inner_pop in self.network.synapses[area_name].values():
+                for source_area in inner_pop.values():
+                    for source_pop in source_area.values():
+                        total_cons += source_pop
+            area_sizes[area_name] = total_cons + self.network.N[area_name]["total"] * 3
+
+        sorted_area_sizes = sorted(area_sizes.items(), key=lambda x: x[1])
+        areas_by_rank = dict((rank, {}) for rank in range(num_ranks))
+        reverse = False
+        while len(sorted_area_sizes) > 0:
+            if reverse:
+                sorted_area_sizes = list(reversed(sorted_area_sizes))
+            try:
+                for _, allocated_areas_dict in sorted(areas_by_rank.items(), key=lambda x: sum(x[1].values())):
+                        allocated_areas_dict.update((sorted_area_sizes.pop(),))
+            except IndexError:
+                break
+            reverse = not reverse
+
+        save_dict = {
+        "areas_sizes": area_sizes,
+        "areas_by_rank": areas_by_rank
+        }
+
+        with open(os.path.join(self.data_dir,
+                               '_'.join(('areasort_params', str(ngpu.HostId())))), 'w') as f:
+            json.dump(save_dict, f, indent=4)
+
+        for rank, allocated_areas_dict  in areas_by_rank.items():
+            for area_name in allocated_areas_dict:
+                a = Area(self, self.network, area_name, rank)
+                self.areas.append(a)
             if arank==ngpu.HostId():
                 self.areas_timers = {}
                 self.areas_timers['create_neurons'] = a.time_create_local_neurons
                 self.areas_timers['connect_neurons'] = a.time_connect_local_neurons
                 self.areas_timers['create_devices'] = a.time_create_local_devices
                 self.areas_timers['connect_devices'] = a.time_connect_local_devices
-            arank = arank + 1
 
 
     def cortico_cortical_input(self):
@@ -536,6 +567,18 @@ class Area:
             if ngpu.HostId() == self.rank:
                 print('Created 1 poisson generator for area n. ', self.rank, ' population:', pop, flush=True)
             
+    def create_devices(self):
+        """
+        Create input devices of the area.
+        """
+        self.poisson_generators = []
+        for pop in self.populations:
+            remote_pg = ngpu.RemoteCreate(self.rank, 'poisson_generator', 1)
+            pg = remote_pg.node_seq
+            self.poisson_generators.append(pg[0])
+            if ngpu.HostId() == self.rank:
+                print('Created 1 poisson generator for area n. ', self.rank, ' population:', pop, flush=True)
+            
     def create_populations(self):
         """
         Create all populations of the area.
@@ -591,12 +634,13 @@ class Area:
         #        nest.Connect(self.simulation.voltmeter,
         #                     tuple(range(self.gids[pop][0], self.gids[pop][0] + nrec + 1)))
         if self.network.params['input_params']['poisson_input']:
-            #self.poisson_generators = []
-            for ipop, pop in enumerate(self.populations):
+            ##self.poisson_generators = []
+            for ipop, ipop, pop in enumerate(enumerate(self.populations)):
                 K_ext = self.external_synapses[pop]
                 W_ext = self.network.W[self.name][pop]['external']['external']
-                #pg = ngpu.Create('poisson_generator', 1)
-                #print('Created 1 poisson generator for area n. ', self.rank, ' population:', pop, flush=True)
+                ##pg = ngpu.Create('poisson_generator', 1)
+                ##print('Created 1 poisson generator for area n. ', self.rank, ' population:', pop, flush=True)
+                pg = self.poisson_generators[ipop]
                 pg = self.poisson_generators[ipop]
                 ngpu.SetStatus(
                     [pg], {'rate': self.network.params['input_params']['rate_ext'] * K_ext})
