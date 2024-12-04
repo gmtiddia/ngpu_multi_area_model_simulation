@@ -200,7 +200,7 @@ class Simulation:
             for area_name in allocated_areas_dict:
                 a = Area(self, self.network, area_name, rank)
                 self.areas.append(a)
-            if arank==ngpu.HostId():
+            if rank==ngpu.HostId():
                 self.areas_timers = {}
                 self.areas_timers['create_neurons'] = a.time_create_local_neurons
                 self.areas_timers['connect_neurons'] = a.time_connect_local_neurons
