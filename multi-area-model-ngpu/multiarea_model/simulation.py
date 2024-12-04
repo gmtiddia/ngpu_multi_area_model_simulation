@@ -555,18 +555,6 @@ class Area:
             return self.name == other.name and self.gids == other.gids
         elif isinstance(other, str):
             return self.name == other
-
-    def create_devices(self):
-        """
-        Create input devices of the area.
-        """
-        self.poisson_generators = []
-        for pop in self.populations:
-            remote_pg = ngpu.RemoteCreate(self.rank, 'poisson_generator', 1)
-            pg = remote_pg.node_seq
-            self.poisson_generators.append(pg[0])
-            if ngpu.HostId() == self.rank:
-                print('Created 1 poisson generator for area n. ', self.rank, ' population:', pop, flush=True)
             
     def create_devices(self):
         """
@@ -636,7 +624,7 @@ class Area:
         #                     tuple(range(self.gids[pop][0], self.gids[pop][0] + nrec + 1)))
         if self.network.params['input_params']['poisson_input']:
             ##self.poisson_generators = []
-            for ipop, ipop, pop in enumerate(enumerate(self.populations)):
+            for ipop, pop in enumerate(self.populations):
                 K_ext = self.external_synapses[pop]
                 W_ext = self.network.W[self.name][pop]['external']['external']
                 ##pg = ngpu.Create('poisson_generator', 1)
