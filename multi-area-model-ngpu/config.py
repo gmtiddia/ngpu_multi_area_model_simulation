@@ -1,7 +1,7 @@
 # Absolute path of repository
-base_path = '/p/project1/icei-hbp-2020-0007/mam_mpi_comm_areasort/multi-area-model-ngpu'
+base_path = '/p/project1/icei-hbp-2020-0007/tiddia/mam_stage2024/mam_mpi_comm_benchmarking_2024/multi-area-model-ngpu'
 # Place to store simulations
-data_path = '/p/project1/icei-hbp-2020-0007/mam_mpi_comm_areasort/simulations'
+data_path = '/p/project1/icei-hbp-2020-0007/tiddia/mam_stage2024/mam_mpi_comm_benchmarking_2024/simulations'
 # Template for job scripts
 jobscript_template = '''#!/bin/bash -x
 #SBATCH --account=icei-hbp-2020-0007
