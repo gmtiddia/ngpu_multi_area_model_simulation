@@ -164,7 +164,7 @@ class Simulation:
         """
         Create all areas with their populations and internal connections.
         """
-        num_ranks = ngpu.HostNum()
+        num_ranks = ngpu.MpiNp()
         self.areas = []
         area_sizes = {}
         for area_name in self.areas_simulated:
@@ -194,14 +194,14 @@ class Simulation:
         }
 
         with open(os.path.join(self.data_dir,
-                               '_'.join(('areasort_params', str(ngpu.HostId())))), 'w') as f:
+                               '_'.join(('areasort_params', str(ngpu.Rank())))), 'w') as f:
             json.dump(save_dict, f, indent=4)
 
         for rank, allocated_areas_dict  in areas_by_rank.items():
             for area_name in allocated_areas_dict:
                 a = Area(self, self.network, area_name, rank)
                 self.areas.append(a)
-            if rank==ngpu.HostId():
+            if rank==ngpu.Rank():
                 self.areas_timers = {}
                 self.areas_timers['create_neurons'] = a.time_create_local_neurons
                 self.areas_timers['connect_neurons'] = a.time_connect_local_neurons
@@ -270,7 +270,7 @@ class Simulation:
                             connect(self,
                                     target_area,
                                     source_area)
-                            if source_area.rank == ngpu.HostId():
+                            if source_area.rank == ngpu.Rank():
                                 print("Connected area n. ", source_area.rank, " to area n. ", target_area.rank, flush=True)
                             #comm.barrier()
                         # Else, replace the input from source_area with the
@@ -338,7 +338,7 @@ class Simulation:
             self.logging()
         else:
             for a in self.areas:                                                                      
-                if a.rank==ngpu.HostId():
+                if a.rank==ngpu.Rank():
                     for pop in a.populations:
                         i0 = a.gids[pop][0]
                         i1 = a.gids[pop][1]
@@ -352,7 +352,7 @@ class Simulation:
             print("Extracting recorded spike times for presimulation")
             spike_times_dict = self.get_recorded_spikes()
             for a in self.areas:                                                                      
-                if a.rank==ngpu.HostId():
+                if a.rank==ngpu.Rank():
                     for pop in a.populations:
                         i0 = a.gids[pop][0]
                         i1 = a.gids[pop][1]
@@ -379,7 +379,7 @@ class Simulation:
         """
         spike_times_dict = {}
         for a in self.areas:
-            if a.rank==ngpu.HostId():
+            if a.rank==ngpu.Rank():
                 for pop in a.populations:
                     spike_times_dict[pop] = []
         return spike_times_dict
@@ -390,7 +390,7 @@ class Simulation:
         """
         spike_times_dict = {}
         for a in self.areas:
-            if a.rank==ngpu.HostId():
+            if a.rank==ngpu.Rank():
                 for pop in a.populations:
                     i0 = a.gids[pop][0]
                     i1 = a.gids[pop][1]
@@ -412,7 +412,7 @@ class Simulation:
         """
         print("Writing recorded spike times to file")
         for a in self.areas:
-            if a.rank==ngpu.HostId():
+            if a.rank==ngpu.Rank():
                 for pop in a.populations:
                     i0 = a.gids[pop][0]
                     i1 = a.gids[pop][1]
@@ -447,7 +447,7 @@ class Simulation:
                           'recordings',
                           '_'.join((self.label,
                                     'logfile',
-                                    str(ngpu.HostId()))))
+                                    str(ngpu.Rank()))))
         with open(fn, 'w') as f:
             json.dump(d, f)
 
@@ -522,8 +522,8 @@ class Area:
         t1_create_devices = perf_counter_ns()
         
         
-        if rank==ngpu.HostId():
-            print("Rank {}: created area {} with {} local nodes".format(ngpu.HostId(),
+        if rank==ngpu.Rank():
+            print("Rank {}: created area {} with {} local nodes".format(ngpu.Rank(),
                                                                         self.name,
                                                                         self.num_local_nodes), flush=True)
             t0_connect_devices = perf_counter_ns()
@@ -540,7 +540,7 @@ class Area:
             self.time_create_local_devices = t1_create_devices - t0_create_devices
             self.time_connect_local_neurons = t1_connect_neurons - t0_connect_neurons
 
-            print("Created internal connections of area n. ", rank, " in mpi proc. ", ngpu.HostId(), flush=True)
+            print("Created internal connections of area n. ", rank, " in mpi proc. ", ngpu.Rank(), flush=True)
 
     def __str__(self):
         s = "Area {} with {} neurons.".format(
@@ -565,7 +565,7 @@ class Area:
             remote_pg = ngpu.RemoteCreate(self.rank, 'poisson_generator', 1)
             pg = remote_pg.node_seq
             self.poisson_generators.append(pg[0])
-            if ngpu.HostId() == self.rank:
+            if ngpu.Rank() == self.rank:
                 print('Created 1 poisson generator for area n. ', self.rank, ' population:', pop, flush=True)
             
     def create_populations(self):
@@ -579,7 +579,7 @@ class Area:
             #print("Creating ", n, " neurons", flush=True)
             remote_neurons = ngpu.RemoteCreate(self.rank, self.network.params['neuron_params']['neuron_model'], int(self.neuron_numbers[pop]))
             neurons = remote_neurons.node_seq
-            if ngpu.HostId() == self.rank:
+            if ngpu.Rank() == self.rank:
                 ngpu.SetStatus(neurons, self.network.params['neuron_params']['single_neuron_dict'])
                 if self.name in self.simulation.params['recording_dict']['areas_recorded']:
                     ngpu.ActivateRecSpikeTimes(neurons, 100)

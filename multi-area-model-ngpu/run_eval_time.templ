@@ -24,7 +24,7 @@ ngpu.ConnectMpiInit()
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 
-mpi_np = ngpu.HostNum()
+mpi_np = ngpu.MpiNp()
 
 d = {}
 conn_params = {'g': -11.,
