@@ -1,12 +1,11 @@
 #!/bin/bash -x
-#SBATCH --account=jinb33
-#SBATCH --nodes=3
-#SBATCH --ntasks=12
-#SBATCH --gpus-per-task=1
-#SBATCH --time=00:45:00
-#SBATCH --partition=dc-gpu
-#SBATCH --output=/p/project1/icei-hbp-2020-0007/mam_mpi_comm_areasort/multi-area-model-ngpu/logfiles/test_mam_eval_time_out.%j
-#SBATCH --error=/p/project1/icei-hbp-2020-0007/mam_mpi_comm_areasort/multi-area-model-ngpu/logfiles/test_mam_eval_time_err.%j
+#SBATCH --account=icei-hbp-2020-0007
+#SBATCH --nodes=32
+#SBATCH --ntasks-per-node=1
+#SBATCH --time=00:30:00
+#SBATCH --partition=gpus
+#SBATCH --output=/p/project1/icei-hbp-2020-0007/tiddia/mam_stage2024/mam_mpi_comm_benchmarking_2024/multi-area-model-ngpu/logfiles/test_mam_eval_time_out.%j
+#SBATCH --error=/p/project1/icei-hbp-2020-0007/tiddia/mam_stage2024/mam_mpi_comm_benchmarking_2024/multi-area-model-ngpu/logfiles/test_mam_eval_time_err.%j
 # *** start of job script ***
 # Note: The current working directory at this point is
 # the directory where sbatch was executed.

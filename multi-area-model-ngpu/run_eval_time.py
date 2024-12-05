@@ -23,11 +23,7 @@ ngpu.ConnectMpiInit()
 comm = MPI.COMM_WORLD
 rank = comm.Get_rank()
 
-
 mpi_np = ngpu.HostNum()
-
-print(mpi_np)
-print(ngpu.HostId())
 
 d = {}
 conn_params = {'g': -11.,
@@ -44,10 +40,8 @@ input_params = {'rate_ext': 10.}
 neuron_params = {'V0_mean': -150.,
                  'V0_sd': 50.}
 
-fn = os.path.join(base_path, 'tests/fullscale_rates.json')
 network_params = {'N_scaling': 1.0,
                   'K_scaling': 1.0,
-		  'fullscale_rates': fn,
                   'connection_params': conn_params,
                   'input_params': input_params,
                   'neuron_params': neuron_params}
@@ -60,23 +54,13 @@ sim_params = {'t_sim': 10000.,
 theory_params = {'dt': 0.1}
 
 if rank==0:
-    #M = MultiAreaModel(network_params, simulation=True,
-    #                   sim_spec=sim_params,
-    #                   theory=False,
-    #                   theory_spec=theory_params)
-    #p, r = M.theory.integrate_siegert()
-    #print("Mean-field theory predicts an average "
-    #      "rate of {0:.3f} spikes/s across all populations.".format(np.mean(r[:, -1])))
-
     sim_params['master_seed'] = 12345
     M = MultiAreaModel(network_params, simulation=True,
                        sim_spec=sim_params)
     label = M.simulation.label
-    # Copy run_simulation script to simulation folder
     shutil.copy2(os.path.join(base_path, 'run_eval_time.py'),
                  os.path.join(data_path, label))
 
-    # Load simulation parameters
     fn = os.path.join(data_path,
                       label,
                       '_'.join(('custom_params',
@@ -85,10 +69,8 @@ if rank==0:
         custom_params = json.load(f)
     nested_update(sim_params, custom_params['sim_params'])
 
-    # Copy custom param file for each MPI process
     for i in range(sim_params['num_processes']):
         shutil.copy(fn, '_'.join((fn, str(i))))
-    # Collect relevant arguments for job script
     num_vp = sim_params['num_processes'] * sim_params[
         'local_num_threads']
     d = {'label': label,
