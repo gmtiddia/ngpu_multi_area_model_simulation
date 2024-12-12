@@ -297,8 +297,8 @@ class Simulation:
         t0 = perf_counter_ns()
         self.prepare()
         t1 = perf_counter_ns()
-        self.time_prepare = t1 - t0
-        print("Prepared simulation in {0:.2f} seconds.".format(self.time_prepare/1e9), flush=True)
+        self.time_configure = t1 - t0
+        print("Prepared simulation in {0:.2f} seconds.".format(self.time_configure/1e9), flush=True)
 
         t2 = perf_counter_ns()
         self.create_areas()
@@ -432,7 +432,7 @@ class Simulation:
         Write runtime for the MPI processes
         to file.
         """
-        d = {'time_prepare': self.time_prepare,
+        d = {'time_configure': self.time_configure,
              'time_create_neurons': self.areas_timers['create_neurons'],
              'time_connect_local': self.areas_timers['connect_neurons'],
              'time_create_devices': self.areas_timers['create_devices'],
