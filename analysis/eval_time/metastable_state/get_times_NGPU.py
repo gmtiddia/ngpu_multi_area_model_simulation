@@ -35,8 +35,9 @@ bt = []
 st = []
 neuron = []
 poisson = []
-remote_spike = []
-local_spike = []
+delivery = []
+communication = []
+collocation = []
 other = []
 
 for i in range(10):
@@ -52,55 +53,64 @@ for i in range(10):
     #sometimes there is more than one node that exibits the maximum value
     #in this case we average the results in order to show a single set of values per each node
     if(len(max_st_idx) == 1):
-        remote_spike_handling_delivery = (run_i["copy_ext_spike_time"].loc[max_st_idx[0]] +
+        coll = (run_i["RecvSpikeFromRemote_time"].loc[max_st_idx[0]] -
+                run_i["RecvSpikeFromRemote_MPI_time"].loc[max_st_idx[0]] +
+                run_i["SendSpikeToRemote_time"].loc[max_st_idx[0]] -
+                run_i["SendSpikeToRemote_MPI_time"].loc[max_st_idx[0]])
+        comm = (run_i["copy_ext_spike_time"].loc[max_st_idx[0]] +
             run_i["SendExternalSpike_time"].loc[max_st_idx[0]] +
             run_i["SendSpikeToRemote_time"].loc[max_st_idx[0]] +
             run_i["RecvSpikeFromRemote_time"].loc[max_st_idx[0]] +
-            run_i["ExternalSpikeReset_time"].loc[max_st_idx[0]])
-        local_spike_handling_delivery = (run_i["GetSpike_time"].loc[max_st_idx[0]] +
+            run_i["ExternalSpikeReset_time"].loc[max_st_idx[0]]) - coll
+        deliv = (run_i["GetSpike_time"].loc[max_st_idx[0]] +
             run_i["NestedLoop_time"].loc[max_st_idx[0]] +
             run_i["SpikeBufferUpdate_time"].loc[max_st_idx[0]] +
             run_i["SpikeReset_time"].loc[max_st_idx[0]])
-        oth = (run_i["Simulation time"].loc[max_st_idx[0]] -
-            np.sum(run_i.drop(columns=["Building time", "Simulation time"]).loc[max_st_idx[0]]))
         neuron.append(run_i["neuron_Update_time"].loc[max_st_idx[0]])
         poisson.append(run_i["poisson_generator_time"].loc[max_st_idx[0]])
-        remote_spike.append(remote_spike_handling_delivery)
-        local_spike.append(local_spike_handling_delivery)
+        oth = (run_i["Simulation time"].loc[max_st_idx[0]] - coll - comm - deliv - neuron[-1] - poisson [-1])
+        collocation.append(coll)
+        communication.append(comm)
+        delivery.append(deliv)
         other.append(oth)
     else:
-        remote_spike_handling_delivery = (np.mean(run_i["copy_ext_spike_time"].loc[max_st_idx]) +
+        coll = (np.mean(run_i["RecvSpikeFromRemote_time"].loc[max_st_idx]) -
+                np.mean(run_i["RecvSpikeFromRemote_MPI_time"].loc[max_st_idx]) +
+                np.mean(run_i["SendSpikeToRemote_time"].loc[max_st_idx]) -
+                np.mean(run_i["SendSpikeToRemote_MPI_time"].loc[max_st_idx]))
+        comm = (np.mean(run_i["copy_ext_spike_time"].loc[max_st_idx]) +
             np.mean(run_i["SendExternalSpike_time"].loc[max_st_idx]) +
             np.mean(run_i["SendSpikeToRemote_time"].loc[max_st_idx]) +
             np.mean(run_i["RecvSpikeFromRemote_time"].loc[max_st_idx]) +
-            np.mean(run_i["ExternalSpikeReset_time"].loc[max_st_idx]))
-        local_spike_handling_delivery = (np.mean(run_i["GetSpike_time"].loc[max_st_idx]) +
+            np.mean(run_i["ExternalSpikeReset_time"].loc[max_st_idx])) - coll
+        deliv = (np.mean(run_i["GetSpike_time"].loc[max_st_idx]) +
             np.mean(run_i["NestedLoop_time"].loc[max_st_idx]) +
             np.mean(run_i["SpikeBufferUpdate_time"].loc[max_st_idx]) +
             np.mean(run_i["SpikeReset_time"].loc[max_st_idx]))
-        oth = (np.mean(run_i["Simulation time"].loc[max_st_idx]) - 
-            np.sum(np.mean(run_i.drop(columns=["Building time", "Simulation time"]).loc[max_st_idx])))
         neuron.append(np.mean(run_i["neuron_Update_time"].loc[max_st_idx]))
         poisson.append(np.mean(run_i["poisson_generator_time"].loc[max_st_idx]))
-        remote_spike.append(remote_spike_handling_delivery)
-        local_spike.append(local_spike_handling_delivery)
+        oth = (np.mean(run_i["Simulation time"].loc[max_st_idx]) - coll - comm - deliv - neuron[-1] - poisson [-1])
+        communication.append(comm)
+        collocation.append(coll)
+        delivery.append(deliv)
         other.append(oth)
 
 print("\n\nAveraged results")
-print("Building time [s]     :", np.mean(bt), "+/-", np.std(bt))
-print("Simulation time [s]   :", np.mean(st), "+/-", np.std(st))
-print("Neuron dynamics [s]   :", np.mean(neuron), "+/-", np.std(neuron))
-print("Poisson generator [s] :", np.mean(poisson), "+/-", np.std(poisson))
-print("Remote spike (MPI) [s]:", np.mean(remote_spike), "+/-", np.std(remote_spike))
-print("Local spike [s]       :", np.mean(local_spike), "+/-", np.std(local_spike))
-print("Other [s]             :", np.mean(other), "+/-", np.std(other))
+print("Building time [s]    :", np.mean(bt), "+/-", np.std(bt))
+print("Simulation time [s]  :", np.mean(st), "+/-", np.std(st))
+print("Neuron dynamics [s]  :", np.mean(neuron), "+/-", np.std(neuron))
+print("Poisson generator [s]:", np.mean(poisson), "+/-", np.std(poisson))
+print("Communication [s]    :", np.mean(communication), "+/-", np.std(communication))
+print("Collocation [s]      :", np.mean(collocation), "+/-", np.std(collocation))
+print("Delivery [s]         :", np.mean(delivery), "+/-", np.std(delivery))
+print("Other [s]            :", np.mean(other), "+/-", np.std(other))
 
-mean = [np.mean(bt), np.mean(st), np.mean(neuron), np.mean(poisson), np.mean(remote_spike), np.mean(local_spike), np.mean(other)]
-std = [np.std(bt), np.std(st), np.std(neuron), np.std(poisson), np.std(remote_spike), np.std(local_spike), np.std(other)]
+mean = [np.mean(bt), np.mean(st), np.mean(neuron), np.mean(poisson), np.mean(communication), np.mean(collocation), np.mean(delivery), np.mean(other)]
+std = [np.std(bt), np.std(st), np.std(neuron), np.std(poisson), np.std(communication), np.std(collocation), np.std(delivery), np.std(other)]
 
 stat ={"mean": mean,"std": std}
 df_stat = pd.DataFrame(stat, index = ["Building time ", "Simulation time", "Neuron dynamics", "Poisson generator",
-        "Remote spike", "Local spike", "Other"])
+        "Communication", "Collocation", "Delivery", "Other"])
 df_stat.to_csv("ngpu_times_stat.csv")
 
 
